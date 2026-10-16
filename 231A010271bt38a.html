@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bài tập 38a - Game kiểm tra tốc độ phản xạ (tt)</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+@property --a{syntax:'<angle>';initial-value:0deg;inherits:false}
+:root{color-scheme:dark;--bg:#0b0c1a;--v:#8b5cf6;--c:#22d3ee;--r:#ff5c8a;--m:#34d399;--am:#fbbf24;--tx:#f1f2ff;--dim:#9aa0c3;--glass:rgba(255,255,255,.06);--bd:rgba(255,255,255,.12);
+--ui:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;--num:'Space Grotesk','Plus Jakarta Sans',system-ui,sans-serif;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html,body{margin:0}
+body{min-height:100vh;background:var(--bg);color:var(--tx);font-family:var(--ui);display:flex;justify-content:center;padding:18px 10px;position:relative;overflow-x:hidden;transition:background .45s ease}
+.orb{position:fixed;border-radius:50%;filter:blur(90px);opacity:.55;pointer-events:none;z-index:0;animation:fl 14s ease-in-out infinite alternate;transition:background .45s ease}
+.o1{width:480px;height:480px;background:var(--v);top:-140px;left:-120px}.o2{width:420px;height:420px;background:var(--c);bottom:-140px;right:-100px;animation-delay:-5s;opacity:.4}.o3{width:360px;height:360px;background:var(--r);top:40%;left:55%;animation-delay:-9s;opacity:.35}
+@keyframes fl{to{transform:translate(60px,40px) scale(1.15)}}
+#bg,#conf{position:fixed;inset:0;pointer-events:none}#bg{z-index:0}#conf{z-index:60}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;background:var(--glass);border:1px solid var(--bd);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font-size:.74rem;font-weight:600;color:var(--dim)}
+.chip b{color:var(--tx);font-weight:800}
+.sid{position:absolute;top:10px;right:12px;z-index:2}
+.wrap{position:relative;z-index:1;max-width:100%;overflow-x:auto;text-align:center;padding:46px 8px 12px}
+.tag{margin-bottom:10px;color:var(--c)}
+h1{margin:0 0 6px;font:800 clamp(1.5rem,4.4vw,2.5rem)/1.15 var(--ui);letter-spacing:-.02em;background:linear-gradient(90deg,#c4b5fd,#67e8f9,#fda4c4,#c4b5fd);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:gd 8s linear infinite}
+@keyframes gd{to{background-position:300% 0}}
+.sub{margin:0 0 16px;color:var(--dim);font-size:.9rem}
+.hud{display:flex;width:604px;gap:12px;margin:0 auto 12px}
+.card{flex:1;display:flex;align-items:center;justify-content:center;gap:12px;min-height:92px;padding:12px 14px;border-radius:24px;background:var(--glass);border:1px solid var(--bd);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.card small{display:block;font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:2px}
+.card b{display:block;font:700 2.3rem/1 var(--num);font-variant-numeric:tabular-nums}
+.cs b{color:var(--m);transition:transform .15s cubic-bezier(.3,1.6,.5,1)}.pop{transform:scale(1.3)}
+.cb b{color:var(--am);font-size:1.7rem}.cb{flex:.8}
+#combo{display:none;padding:5px 10px;border-radius:999px;font:800 .72rem var(--ui);color:#3b1d00;background:linear-gradient(90deg,var(--am),#fb923c);box-shadow:0 0 18px rgba(251,146,60,.7);animation:pu .5s ease-in-out infinite alternate}
+@keyframes pu{to{transform:scale(1.12)}}
+.ring{position:relative;width:72px;height:72px;flex:none}.ring svg{width:72px;height:72px;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:7;stroke-linecap:round}.ring .bgc{stroke:rgba(255,255,255,.1)}
+#arc{stroke:var(--m);transition:stroke .3s;filter:drop-shadow(0 0 6px currentColor)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font:700 1.05rem var(--num)}
+.ct.low .ring b{color:var(--r);animation:bl .5s infinite}@keyframes bl{50%{opacity:.35}}
+
+/* Thanh công cụ mở rộng Bài tập 38a */
+.tools38a{display:flex;width:604px;margin:0 auto 12px;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px 14px;border-radius:20px;background:var(--glass);border:1px solid var(--bd);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.t-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;border:1px solid var(--bd);background:rgba(255,255,255,.08);color:var(--tx);font:700 .76rem var(--ui);cursor:pointer;transition:.2s}
+.t-btn:hover{background:rgba(255,255,255,.18);transform:translateY(-1px)}
+.t-btn:active{transform:scale(.96)}
+.t-btn.bg-btn{border-color:rgba(34,211,238,.45);color:var(--c)}
+.t-btn.pl-btn{border-color:rgba(52,211,153,.45);color:var(--m)}
+.t-time{display:inline-flex;align-items:center;gap:8px;font-size:.76rem;font-weight:600;color:var(--dim)}
+.t-time input{width:64px;padding:6px 8px;border-radius:10px;border:1px solid rgba(251,191,36,.45);background:rgba(0,0,0,.35);color:var(--am);font:700 .9rem var(--num);text-align:center;outline:none}
+.t-time input:focus{border-color:var(--am);box-shadow:0 0 10px rgba(251,191,36,.35)}
+#playerBanner{display:none;width:604px;margin:0 auto 12px;padding:10px 16px;border-radius:16px;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.4);color:var(--tx);font-size:.82rem;font-weight:600;align-items:center;justify-content:space-between;animation:sp .25s ease}
+#playerBanner b{color:var(--m);font-family:var(--num);font-size:.92rem}
+
+.frame{position:relative;width:604px;margin:0 auto;padding:2px;border-radius:30px;background:conic-gradient(from var(--a),var(--v),var(--c),var(--r),var(--v));animation:spin 8s linear infinite;box-shadow:0 20px 60px rgba(139,92,246,.35),0 0 80px rgba(34,211,238,.12)}
+@keyframes spin{to{--a:360deg}}
+.frame.shake{animation:spin 8s linear infinite,shk .15s}@keyframes shk{25%{translate:-3px 2px}75%{translate:3px -2px}}
+#arena{position:relative;width:600px;height:400px;overflow:hidden;border-radius:28px;cursor:crosshair;user-select:none;-webkit-user-select:none;touch-action:manipulation;
+background:radial-gradient(circle,rgba(255,255,255,.1) 1px,transparent 1.5px) 0 0/26px 26px,radial-gradient(ellipse at 30% 20%,#1e1b4b,#0d0f24 70%);transition:background .45s ease}
+#arena::before{content:"#arena";position:absolute;left:20px;bottom:14px;z-index:1;font:800 20px var(--ui);color:rgba(255,255,255,.14);letter-spacing:.04em;pointer-events:none}
+#arena::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;border-radius:28px;box-shadow:inset 0 0 0 0 rgba(255,60,90,0);transition:box-shadow .15s}
+#arena.miss::after{box-shadow:inset 0 0 80px 8px rgba(255,60,90,.65)}
+#target{position:absolute;z-index:3;border:0;padding:0;border-radius:50%;cursor:crosshair;display:none;
+background:radial-gradient(circle,#fff 0 9%,var(--r) 11% 24%,transparent 26% 34%,#ff9bb8 36% 44%,transparent 46% 56%,#a78bfa 58% 68%,transparent 70%);
+filter:drop-shadow(0 6px 14px rgba(255,92,138,.65));animation:sp .25s cubic-bezier(.3,1.6,.5,1),bt .6s ease-in-out infinite alternate;transition:transform .2s cubic-bezier(.3,1.6,.5,1),filter .2s}
+#target:hover{transform:scale(1.14);filter:drop-shadow(0 8px 22px rgba(251,191,36,.9)) brightness(1.15)}
+@keyframes sp{from{transform:scale(0)}to{transform:scale(1)}}@keyframes bt{from{scale:.94}to{scale:1.07}}
+.tr{position:absolute;inset:-9px;border:2px solid rgba(255,255,255,.65);border-radius:50%;pointer-events:none;animation:shr var(--ms,1000ms) linear forwards}
+@keyframes shr{from{transform:scale(1.5);opacity:.15}to{transform:scale(.92);opacity:.9;border-color:var(--r)}}
+.fx{position:absolute;z-index:4;pointer-events:none;white-space:nowrap;padding:4px 12px;border-radius:999px;font:800 .85rem var(--ui);transform:translate(-50%,-50%);animation:rs .9s ease-out forwards;backdrop-filter:blur(6px)}
+.fx.ok{color:#052e1c;background:var(--m)}.fx.fast{color:#3b1d00;background:linear-gradient(90deg,var(--am),#fb923c)}.fx.bad{color:#fff;background:var(--r)}
+@keyframes rs{to{transform:translate(-50%,-220%);opacity:0}}
+.sk{position:absolute;z-index:4;width:7px;height:7px;border-radius:50%;pointer-events:none;animation:sk .55s ease-out forwards}
+@keyframes sk{to{transform:translate(var(--x),var(--y)) scale(.1);opacity:0}}
+.wave{position:absolute;z-index:4;width:20px;height:20px;margin:-10px 0 0 -10px;border:2px solid rgba(255,255,255,.8);border-radius:50%;pointer-events:none;animation:wv .5s ease-out forwards}
+@keyframes wv{to{transform:scale(7);opacity:0}}
+#overlay{position:absolute;inset:0;z-index:6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:18px;background:rgba(11,12,26,.62);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);cursor:default}
+#overlay[hidden]{display:none}
+.hint{font-size:.82rem;color:var(--dim);max-width:400px;line-height:1.6}.hint b{color:var(--am)}
+.modes{display:flex;gap:4px;padding:4px;border-radius:999px;background:var(--glass);border:1px solid var(--bd)}
+.mode{padding:8px 15px;border:0;border-radius:999px;background:transparent;color:var(--dim);font:700 .74rem var(--ui);cursor:pointer;transition:.2s}
+.mode:hover{color:#fff}.mode.on{color:#fff;background:linear-gradient(90deg,var(--v),var(--c));box-shadow:0 4px 16px rgba(139,92,246,.5)}
+.big{margin-top:6px;padding:16px 38px;border:0;border-radius:999px;font:800 1.1rem var(--ui);color:#fff;cursor:pointer;background:linear-gradient(90deg,var(--v),var(--r),var(--v));background-size:200% 100%;box-shadow:0 10px 30px rgba(255,92,138,.45);animation:sh 3s linear infinite;transition:transform .2s cubic-bezier(.3,1.6,.5,1),box-shadow .2s}
+@keyframes sh{to{background-position:200% 0}}
+.big:hover{transform:translateY(-3px) scale(1.06);box-shadow:0 16px 40px rgba(255,92,138,.6)}.big:active{transform:scale(.95)}
+.go{font:700 .8rem var(--ui);letter-spacing:.2em;color:var(--r)}
+.fin{font:700 4.4rem/1 var(--num);background:linear-gradient(180deg,#fff,var(--c));-webkit-background-clip:text;background-clip:text;color:transparent}
+.rk{padding:6px 16px;border-radius:999px;font:800 .9rem var(--ui);color:#3b1d00;background:linear-gradient(90deg,var(--am),#fb923c)}
+.tiles{display:flex;gap:8px}.tile{padding:8px 12px;border-radius:16px;background:var(--glass);border:1px solid var(--bd);font-size:.62rem;color:var(--dim);letter-spacing:.06em;text-transform:uppercase}
+.tile b{display:block;margin-top:2px;font:700 1.05rem var(--num);color:var(--tx);letter-spacing:0}
+.bar{display:flex;width:604px;margin:16px auto 0;gap:12px;align-items:center}
+#rank{flex:1;justify-content:center;color:var(--am);font-weight:800;letter-spacing:.06em}
+#mute{cursor:pointer;color:var(--tx);font-family:var(--ui)}#mute:hover{background:rgba(255,255,255,.14)}
+</style>
+</head>
+<body>
+<div class="orb o1" id="orb1"></div><div class="orb o2" id="orb2"></div><div class="orb o3" id="orb3"></div>
+<canvas id="bg"></canvas><canvas id="conf"></canvas>
+<div class="chip sid">SV: <b id="sname"></b> · MSSV: <b id="sid"></b></div>
+<div class="wrap">
+  <div class="chip tag">⚡ Bài tập 38a</div>
+  <h1>Game kiểm tra tốc độ phản xạ</h1>
+  <p class="sub">Click trúng mục tiêu trước khi nó nhảy đi. Nhanh tay, nhanh mắt!</p>
+
+  <div class="hud">
+    <div class="card cs"><div><small>Điểm số</small><b id="score">0</b></div><div id="combo"></div></div>
+    <div class="card ct" id="timeBox"><div><small>Thời gian</small></div>
+      <div class="ring"><svg viewBox="0 0 80 80"><circle class="bgc" cx="40" cy="40" r="34"/><circle id="arc" cx="40" cy="40" r="34"/></svg><b id="time">30.0</b></div></div>
+    <div class="card cb"><div><small>Kỷ lục</small><b id="best">0</b></div></div>
+  </div>
+
+  <!-- Thanh điều khiển bổ sung của Bài tập 38a -->
+  <div class="tools38a">
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <!-- 1. Nút Đổi màu nền trò chơi ngẫu nhiên -->
+      <button type="button" id="bgBtn" class="t-btn bg-btn">🎨 Đổi màu nền</button>
+      <!-- 2. Nút Người chơi hiển thị mã sinh viên -->
+      <button type="button" id="playerBtn" class="t-btn pl-btn">👤 Người chơi</button>
+    </div>
+    <!-- 3. Thời gian chạy ngược tùy chọn -->
+    <label class="t-time" for="customTime">
+      ⏱️ Thời gian đếm ngược (giây):
+      <input type="number" id="customTime" value="30" min="5" max="300" step="1">
+    </label>
+  </div>
+
+  <!-- Thanh hiển thị thông tin Mã sinh viên & Màu nền khi bấm nút -->
+  <div id="playerBanner">
+    <span id="playerText">👤 Người chơi: <b>231A010271</b> — Trương Tấn Phát</span>
+    <span id="bgText" style="font-size:.74rem;color:var(--dim)">Màu nền: Mặc định</span>
+  </div>
+
+  <div class="frame">
+    <div id="arena">
+      <button id="target" aria-label="Mục tiêu"><span class="tr"></span></button>
+      <div id="overlay">
+        <div class="hint">Click nhanh liên tiếp (&lt; 0,8s) ở chế độ <b>COMBO</b> để nhân điểm. Bạn có thể tùy chỉnh <b>thời gian đếm ngược</b> trước khi bắt đầu!</div>
+        <div class="modes"><button class="mode on" data-m="std">Chuẩn đề · +1</button><button class="mode" data-m="combo">Combo</button><button class="mode" data-m="hard">Hardcore</button></div>
+        <button id="startBtn" class="big">Bắt đầu trò chơi</button>
+      </div>
+    </div>
+  </div>
+  <div class="bar"><div class="chip" id="rank">Rank: Tập sự</div><button class="chip" id="mute">🔊 Âm thanh: Bật</button></div>
+</div>
+<script>
+const STUDENT_NAME='Trương Tấn Phát', STUDENT_ID='231A010271';
+$=id=>document.getElementById(id);
+$('sname').textContent=STUDENT_NAME;$('sid').textContent=STUDENT_ID;
+let GAME_MS=30000;
+const FAST_MS=800,C=2*Math.PI*34;
+let mode='std',rts=[];const MODES={std:{ms:1000,m:0},combo:{ms:1000,m:1},hard:{ms:700,m:1}};
+const modesHTML=()=>'<div class="modes">'+[['std','Chuẩn đề · +1'],['combo','Combo'],['hard','Hardcore']].map(a=>'<button class="mode'+(mode===a[0]?' on':'')+'" data-m="'+a[0]+'">'+a[1]+'</button>').join('')+'</div>';
+const arena=$('arena'),target=$('target'),overlay=$('overlay'),scoreEl=$('score'),comboEl=$('combo'),timeEl=$('time'),timeBox=$('timeBox'),arc=$('arc'),rankEl=$('rank'),muteBtn=$('mute'),bestEl=$('best');
+const bgBtn=$('bgBtn'),playerBtn=$('playerBtn'),customTimeInput=$('customTime'),playerBanner=$('playerBanner'),playerText=$('playerText'),bgText=$('bgText');
+arc.style.strokeDasharray=C;
+let score=0,hits=0,misses=0,streak=0,maxStreak=0,running=false,deadline=0,lastSec=0,spawnT=0,moveTimer=null,tickTimer=null,muted=false,ac=null,best=0;
+try{best=+localStorage.getItem('bt38best')||0;}catch(e){}bestEl.textContent=best;
+
+/* SFX */
+function tone(f,d=.1,ty='sine',v=.07,dl=0,sl=0){
+  if(muted)return;
+  try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    const t=ac.currentTime+dl,o=ac.createOscillator(),g=ac.createGain();
+    o.type=ty;o.frequency.setValueAtTime(f,t);if(sl)o.frequency.exponentialRampToValueAtTime(sl,t+d);
+    g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);
+    o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d);}catch(e){}
+}
+const sfx={hit:()=>tone(700,.1,'sine',.1,0,1400),miss:()=>tone(200,.18,'triangle',.08,0,90),beep:()=>tone(900,.1,'sine',.07),
+ start:()=>[523,659,784].forEach((f,i)=>tone(f,.14,'sine',.07,i*.08)),
+ over:()=>[523,440,349,262].forEach((f,i)=>tone(f,.25,'triangle',.07,i*.16)),
+ win:()=>[523,659,784,1047,784,1047].forEach((f,i)=>tone(f,.18,'sine',.09,i*.11))};
+muteBtn.onclick=()=>{muted=!muted;muteBtn.textContent=muted?'🔇 Âm thanh: Tắt':'🔊 Âm thanh: Bật';};
+
+/* =========================================================
+   YÊU CẦU BÀI 38A:
+   1. Nút Đổi màu nền trò chơi ngẫu nhiên
+   2. Nút Người chơi hiển thị Mã sinh viên
+   3. Thời gian chạy ngược tùy chọn khi bấm bắt đầu chơi
+   ========================================================= */
+function randomHexColor(){
+  return '#'+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0');
+}
+
+// 1. Đổi màu nền trò chơi ngẫu nhiên
+bgBtn.onclick=()=>{
+  const h1=Math.floor(Math.random()*360),h2=(h1+70)%360,h3=(h1+160)%360;
+  const arenaCol1=`hsl(${h1}, 65%, 22%)`,arenaCol2=`hsl(${h2}, 70%, 10%)`;
+  const bodyCol=`hsl(${h1}, 55%, 8%)`;
+  const hexTag=randomHexColor().toUpperCase();
+
+  document.body.style.background=bodyCol;
+  arena.style.background=`radial-gradient(circle,rgba(255,255,255,.12) 1px,transparent 1.5px) 0 0/26px 26px, radial-gradient(ellipse at 30% 20%, ${arenaCol1}, ${arenaCol2} 75%)`;
+  $('orb1').style.background=`hsl(${h1}, 85%, 60%)`;
+  $('orb2').style.background=`hsl(${h2}, 85%, 55%)`;
+  $('orb3').style.background=`hsl(${h3}, 85%, 60%)`;
+
+  playerBanner.style.display='flex';
+  bgText.textContent=`🎨 Màu nền mới: ${hexTag}`;
+  tone(620,.09,'sine',.07,0,980);
+};
+
+// 2. Nút Người chơi: Khi bấm vào hiển thị mã sinh viên của bạn
+playerBtn.onclick=()=>{
+  playerBanner.style.display='flex';
+  playerText.innerHTML=`👤 Mã sinh viên: <b>${STUDENT_ID}</b> · Họ tên: <b>${STUDENT_NAME}</b>`;
+  tone(800,.1,'sine',.08,0,1200);
+  alert(`THÔNG TIN NGƯỜI CHƠI:\n- Mã sinh viên: ${STUDENT_ID}\n- Họ và tên: ${STUDENT_NAME}`);
+};
+
+// Đồng bộ hiển thị đồng hồ khi người dùng gõ vào ô thời gian lúc chưa chơi
+customTimeInput.addEventListener('input',()=>{
+  if(running)return;
+  const v=parseInt(customTimeInput.value,10);
+  if(!isNaN(v)&&v>0){
+    GAME_MS=v*1000;
+    timeEl.textContent=v.toFixed(1);
+    arc.style.strokeDashoffset=0;
+  }
+});
+
+// 3. Hàm lấy thời gian chạy ngược tùy chọn khi bấm Bắt đầu chơi
+function askCustomTime(){
+  const defaultSec=parseInt(customTimeInput.value,10)||30;
+  const input=prompt('Nhập thời gian đếm ngược tùy chọn (số giây):', defaultSec);
+  if(input===null)return null; // Người chơi bấm Cancel
+  let sec=parseInt(input,10);
+  if(isNaN(sec)||sec<=0){
+    alert('Thời gian không hợp lệ! Trò chơi sẽ lấy mặc định 30 giây.');
+    sec=30;
+  }
+  customTimeInput.value=sec;
+  return sec;
+}
+
+/* Logic */
+const mult=s=>!MODES[mode].m?1:(s>=10?5:s>=6?3:s>=3?2:1);
+const rankOf=s=>s>45?'Huyền thoại':s>25?'Thần xạ phản xạ':s>=10?'Xạ thủ':'Tập sự';
+function moveTarget(){
+  const s=44+Math.floor(Math.random()*17);
+  target.style.width=target.style.height=s+'px';
+  target.style.left=Math.floor(Math.random()*(arena.clientWidth-s+1))+'px';
+  target.style.top=Math.floor(Math.random()*(arena.clientHeight-s+1))+'px';
+  target.style.animation='none';void target.offsetWidth;target.style.animation='';
+  spawnT=performance.now();
+  const tr=target.firstElementChild;tr.style.setProperty('--ms',MODES[mode].ms+'ms');tr.style.animation='none';void tr.offsetWidth;tr.style.animation='';
+}
+function restartMove(){clearInterval(moveTimer);moveTimer=setInterval(()=>{if(streak){streak=0;showCombo();}moveTarget();},MODES[mode].ms);}
+function showCombo(){const m=mult(streak);comboEl.style.display=m>1?'block':'none';comboEl.textContent='🔥 x'+m;}
+function fx(x,y,t,c){const f=document.createElement('div');f.className='fx '+c;f.textContent=t;f.style.left=x+'px';f.style.top=y+'px';arena.appendChild(f);setTimeout(()=>f.remove(),900);}
+function wave(x,y){const w=document.createElement('div');w.className='wave';w.style.left=x+'px';w.style.top=y+'px';arena.appendChild(w);setTimeout(()=>w.remove(),500);}
+function shake(){const f=document.querySelector('.frame');f.classList.remove('shake');void f.offsetWidth;f.classList.add('shake');}
+function sparks(x,y){const cl=['#34d399','#22d3ee','#ff5c8a','#fbbf24','#a78bfa'];
+  for(let i=0;i<18;i++){const d=document.createElement('div'),a=Math.random()*6.283,r=30+Math.random()*60;
+    d.className='sk';d.style.left=x+'px';d.style.top=y+'px';d.style.background=cl[i%5];d.style.boxShadow='0 0 10px '+cl[i%5];
+    d.style.setProperty('--x',Math.cos(a)*r+'px');d.style.setProperty('--y',Math.sin(a)*r+'px');arena.appendChild(d);setTimeout(()=>d.remove(),550);}}
+function tick(){
+  const rem=deadline-performance.now();
+  if(rem<=0){endGame();return;}
+  timeEl.textContent=(rem/1000).toFixed(1);
+  const p=rem/GAME_MS;arc.style.strokeDashoffset=C*(1-p);
+  const c=p>.5?'#34d399':p>.25?'#fbbf24':'#ff5c8a';arc.style.stroke=c;arc.style.color=c;
+  const sec=Math.ceil(rem/1000);timeBox.classList.toggle('low',sec<=3);
+  if(sec!==lastSec){lastSec=sec;if(sec<=3)sfx.beep();}
+}
+function startGame(){
+  const chosenSec=askCustomTime();
+  if(chosenSec===null)return;
+  GAME_MS=chosenSec*1000;
+  customTimeInput.disabled=true;
+
+  score=hits=misses=streak=maxStreak=0;rts=[];running=true;lastSec=0;
+  scoreEl.textContent=0;showCombo();rankEl.textContent='Rank: Tập sự';
+  overlay.hidden=true;target.style.display='block';
+  deadline=performance.now()+GAME_MS;moveTarget();restartMove();sfx.start();
+  clearInterval(tickTimer);tickTimer=setInterval(tick,50);tick();
+}
+function endGame(){
+  running=false;clearInterval(moveTimer);clearInterval(tickTimer);
+  customTimeInput.disabled=false;
+  target.style.display='none';timeEl.textContent='0.0';arc.style.strokeDashoffset=C;timeBox.classList.remove('low');comboEl.style.display='none';
+  const tot=hits+misses,acc=tot?Math.round(hits/tot*100):0;
+  const isBest=score>best;if(isBest){best=score;bestEl.textContent=best;try{localStorage.setItem('bt38best',best);}catch(e){}}
+  const avg=rts.length?Math.round(rts.reduce((a,b)=>a+b,0)/rts.length):0,fastest=rts.length?Math.min(...rts):0;
+  overlay.innerHTML='<div class="go">KẾT THÚC · TỔNG ĐIỂM ĐẠT ĐƯỢC</div><div class="fin">'+score+'</div><div class="rk">'+rankOf(score)+'</div>'+
+   '<div class="tiles"><div class="tile">Phản xạ TB<b>'+avg+'ms</b></div><div class="tile">Nhanh nhất<b>'+fastest+'ms</b></div><div class="tile">Combo<b>'+maxStreak+'</b></div><div class="tile">Chính xác<b>'+acc+'%</b></div></div>'+
+   '<div class="hint">Trúng '+hits+' · Trượt '+misses+(isBest&&score>0?' · ⭐ Kỷ lục mới!':'')+'</div>'+modesHTML()+'<button id="again" class="big">Chơi lại</button>';
+  overlay.hidden=false;$('again').onclick=startGame;
+  if(score>=10){sfx.win();confetti(score>25?240:120);}else sfx.over();
+}
+target.addEventListener('pointerdown',e=>{
+  e.preventDefault();e.stopPropagation();
+  if(!running)return;
+  const rt=Math.round(performance.now()-spawnT),fast=rt<FAST_MS;rts.push(rt);
+  streak=fast?streak+1:1;maxStreak=Math.max(maxStreak,streak);
+  const pts=mult(streak);hits++;score+=pts;
+  scoreEl.textContent=score;scoreEl.classList.add('pop');setTimeout(()=>scoreEl.classList.remove('pop'),140);
+  showCombo();rankEl.textContent='Rank: '+rankOf(score);sfx.hit();
+  const x=target.offsetLeft+target.offsetWidth/2,y=target.offsetTop+target.offsetHeight/2,hot=fast&&streak>1;
+  sparks(x,y);wave(x,y);if(streak>=3)shake();
+  fx(x,y,(hot?'⚡ Nhanh! +'+pts:'+'+pts+' điểm')+' · '+rt+'ms',hot?'fast':'ok');
+  moveTarget();restartMove();
+});
+arena.addEventListener('pointerdown',e=>{
+  if(!running)return;
+  const r=arena.getBoundingClientRect();
+  misses++;streak=0;showCombo();sfx.miss();
+  fx(e.clientX-r.left,e.clientY-r.top,'Trượt!','bad');
+  arena.classList.add('miss');setTimeout(()=>arena.classList.remove('miss'),170);
+});
+$('startBtn').onclick=startGame;
+overlay.addEventListener('click',e=>{const m=e.target.dataset&&e.target.dataset.m;if(!m)return;mode=m;overlay.querySelectorAll('.mode').forEach(b=>b.classList.toggle('on',b.dataset.m===m));});
+
+/* Particles */
+const bg=$('bg'),bx=bg.getContext('2d'),cf=$('conf'),cx=cf.getContext('2d');
+const fit=()=>{bg.width=cf.width=innerWidth;bg.height=cf.height=innerHeight;};fit();addEventListener('resize',fit);
+const P=Array.from({length:45},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.8+.5,vy:-(Math.random()*.3+.08),vx:(Math.random()-.5)*.15}));
+(function loop(){
+  bx.clearRect(0,0,bg.width,bg.height);bx.fillStyle='rgba(255,255,255,.45)';
+  for(const p of P){p.x+=p.vx;p.y+=p.vy;if(p.y<-5){p.y=bg.height+5;p.x=Math.random()*bg.width;}bx.beginPath();bx.arc(p.x,p.y,p.r,0,7);bx.fill();}
+  requestAnimationFrame(loop);
+})();
+function confetti(n){
+  const cl=['#8b5cf6','#22d3ee','#ff5c8a','#34d399','#fbbf24'];
+  const A=Array.from({length:n},()=>({x:Math.random()*cf.width,y:-20-Math.random()*cf.height*.6,r:3+Math.random()*4,vx:(Math.random()-.5)*2,vy:1.5+Math.random()*2.5,a:Math.random()*6,va:(Math.random()-.5)*.3,c:cl[Math.floor(Math.random()*5)]}));
+  let k=0;(function f(){cx.clearRect(0,0,cf.width,cf.height);
+    for(const p of A){p.x+=p.vx;p.y+=p.vy;p.a+=p.va;cx.save();cx.translate(p.x,p.y);cx.rotate(p.a);cx.fillStyle=p.c;cx.beginPath();cx.roundRect(-p.r,-p.r*.6,p.r*2,p.r*1.2,p.r*.5);cx.fill();cx.restore();}
+    if(++k<380)requestAnimationFrame(f);else cx.clearRect(0,0,cf.width,cf.height);})();
+}
+</script>
+</body>
+</html>
